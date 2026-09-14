@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Large datasets
+*.tfrecord
+*.tfrecords
+data/
+dataset/
+datasets/
+
+# Trained models
+*.keras
+*.h5
+*.hdf5
+models/
+checkpoints/
+
+# Google Colab
+drive/
+
+# Other CSV files
+*.csv
+
+# Keep project result CSVs
+!results/model_comparison.csv
+!results/case_studies.csv
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+*.key
+*.pem
