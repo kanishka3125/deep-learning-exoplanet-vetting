@@ -1,0 +1,4 @@
+Test Index,True Label,MC Mean Probability,MC Uncertainty (Std),MC Prediction,Confidence
+592,0,0.45895922,0.15270561,0,0.04104078
+1343,1,0.6879436,0.14968406,1,0.18794358
+587,0,0.730666,0.123910405,1,0.23066598
