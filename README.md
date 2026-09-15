@@ -81,13 +81,13 @@ The dataset contains precomputed phase-folded representations:
 - **Local view:** 201 data points
 
 The original labels are:
-```
+
 | Original Label | Meaning | Binary Label |
 |---|---|---:|
 | PC | Planet Candidate | 1 |
 | AFP | Astrophysical False Positive | 0 |
 | NTP | Non-Transit Phenomenon | 0 |
-```
+
 ### Dataset Split
 
 | Split | Samples |
@@ -156,12 +156,13 @@ Input ───────────┤                                 ├�
                                              Sigmoid
                                                    ↓
                                           Planet Probability
+```
 
 Total parameters: 8,135,361
 
 The architecture is described as AstroNet-style because it adopts the global/local dual-view concept. It is a simplified adaptation and is not an exact reproduction of the original AstroNet implementation.
 
-Training
+##Training
 
 The models were trained using TensorFlow/Keras with the following configuration:
 
@@ -209,7 +210,7 @@ Monte Carlo Dropout was used to estimate predictive uncertainty.
 
 Each test example was evaluated 50 times with dropout enabled. The mean prediction and standard deviation across these stochastic forward passes were used as measures of predictive probability and uncertainty.
 
-Results:
+##Results:
 
 Mean uncertainty: 0.02048
 Median uncertainty: 0.00375
