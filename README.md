@@ -70,7 +70,7 @@ Kepler Time-Series Photometry
        Calibration Analysis
 
 ---
-
+```
 ## Dataset
 
 The project uses the Kepler exoplanet candidate-vetting dataset distributed with the AstroNet project.
@@ -81,13 +81,13 @@ The dataset contains precomputed phase-folded representations:
 - **Local view:** 201 data points
 
 The original labels are:
-
+```
 | Original Label | Meaning | Binary Label |
 |---|---|---:|
 | PC | Planet Candidate | 1 |
 | AFP | Astrophysical False Positive | 0 |
 | NTP | Non-Transit Phenomenon | 0 |
-
+```
 ### Dataset Split
 
 | Split | Samples |
