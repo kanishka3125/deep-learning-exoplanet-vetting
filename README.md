@@ -162,7 +162,7 @@ Total parameters: 8,135,361
 
 The architecture is described as AstroNet-style because it adopts the global/local dual-view concept. It is a simplified adaptation and is not an exact reproduction of the original AstroNet implementation.
 
-##Training
+Training
 
 The models were trained using TensorFlow/Keras with the following configuration:
 
@@ -249,16 +249,20 @@ Test Index 1343 — Difficult Positive
 
 The true label was 1, with a mean Monte Carlo probability of approximately 0.6879 and uncertainty of 0.1497.
 
-Test Index 587 — False Positive
+### Test Index 587 — False Positive
 
-The true label was 0, but the model assigned a mean probability of approximately 0.7307, resulting in a false-positive prediction. This demonstrates the importance of uncertainty estimation and additional candidate vetting.
+The true label was 0, but the model assigned a mean probability of approximately 0.7307, resulting in a false-positive prediction.
 
-Project Structure
+This demonstrates the importance of uncertainty estimation and additional candidate vetting.
+
+---
+
+## Project Structure
+
+```text
 deep-learning-exoplanet-vetting/
-│
 ├── notebooks/
 │   └── Deep_Learning_Exoplanet_Vetting_AstroNet.ipynb
-│
 ├── figures/
 │   ├── baseline_roc_curve.png
 │   ├── baseline_confusion_matrix.png
@@ -272,26 +276,28 @@ deep-learning-exoplanet-vetting/
 │   ├── mc_dropout_predictions.png
 │   ├── gradcam_local_test_592.png
 │   └── astronet_calibration_curve.png
-│
 ├── results/
 │   ├── model_comparison.csv
 │   └── case_studies.csv
-│
 ├── .gitignore
 ├── requirements.txt
 └── README.md
-
+```
 Trained .keras models, TFRecord datasets, and large intermediate files are excluded from the repository because of their size.
 
-Technologies
-Python
-TensorFlow / Keras
-NumPy
-Pandas
-Scikit-learn
-Matplotlib
-Google Colab
-Kepler/AstroNet TFRecord data
+---
+
+## Technologies
+
+- Python
+- TensorFlow / Keras
+- NumPy
+- Pandas
+- Scikit-learn
+- Matplotlib
+- Google Colab
+- Kepler / AstroNet TFRecord data
+  
 Reproducibility
 
 To reproduce the experiment:
