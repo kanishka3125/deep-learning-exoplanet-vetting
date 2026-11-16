@@ -1,6 +1,13 @@
-tensorflow
+# Core scientific Python stack
 numpy
 pandas
+scipy
 scikit-learn
 matplotlib
+seaborn
+
+# Deep learning
+tensorflow
+
+# Notebook environment
 jupyter
