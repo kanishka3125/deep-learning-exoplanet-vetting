@@ -259,7 +259,9 @@ Obtain the required Kepler/AstroNet TFRecord dataset separately and make it avai
 
 ### 5. Run the notebook
 
-Open `notebooks/Deep_Learning_Exoplanet_Vetting_AstroNet.ipynb` in Jupyter or Google Colab. Update the dataset path in the notebook for your environment, then execute the notebook sequentially.
+The notebook is configured for **Google Colab** and mounts Google Drive. Place the extracted TFRecord shards in `MyDrive/AstroNet/`, then open `notebooks/Deep_Learning_Exoplanet_Vetting_AstroNet.ipynb` in Colab and execute the cells sequentially.
+
+For local Jupyter, install the requirements, remove or adapt the Google Drive mount cell, and set `ASTRONET_DIR` to the directory containing the TFRecord shards. The rest of the notebook expects the training, validation, and test files to be available under that directory.
 
 The notebook covers data loading, model training, evaluation, Monte Carlo Dropout, Grad-CAM, and calibration analysis.
 
