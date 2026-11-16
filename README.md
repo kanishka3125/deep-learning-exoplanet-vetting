@@ -1,341 +1,298 @@
 # Deep Learning Exoplanet Vetting from Time-Series Photometry
 
-> An end-to-end deep learning pipeline for vetting exoplanet candidates from Kepler time-series photometry using an AstroNet-style dual-input CNN, uncertainty estimation, explainability, and calibration analysis.
+An AstroNet-style deep-learning pipeline for classifying Kepler exoplanet candidate signals using global and local phase-folded light-curve representations.
+
+> **Research project** · Summer School of Astronomy & Astrophysics 2026  
+> **Authors:** Kanishka Sharma and Kritika Sharma
 
 ---
 
 ## Overview
 
-Identifying genuine exoplanet candidates from astronomical observations is a challenging classification problem. Transit-like signals in stellar light curves can be caused by planets as well as several types of false positives.
+A transit-like dip in a stellar light curve is not automatically evidence of a planet. Eclipsing binaries, stellar variability, instrumental effects, and noise can produce similar patterns. This project investigates whether one-dimensional convolutional neural networks can help distinguish labelled planet candidates from non-planet signals.
 
-This project explores deep learning for automated exoplanet vetting using Kepler photometric data.
+The work compares a **baseline single-input 1D CNN** with an **AstroNet-style dual-input 1D CNN**. It also examines predictive uncertainty, model attribution, and probability calibration.
 
-The project implements and compares:
+### What this project covers
 
-- A baseline single-input 1D CNN
-- An AstroNet-style dual-input CNN using global and local light-curve views
-- Monte Carlo Dropout for predictive uncertainty estimation
-- 1D Grad-CAM for model explainability
-- Calibration analysis using a reliability curve and Brier score
+- Binary classification of planet-candidate and non-planet examples
+- Global and local light-curve representations
+- Monte Carlo Dropout for approximate predictive uncertainty
+- 1D Grad-CAM for model attribution
+- Reliability-curve and Brier-score calibration analysis
 
-The goal is not only to classify candidates, but also to investigate **how confident the model is and which regions of the light curve influence its predictions**.
+## Results at a glance
 
----
-
-## Key Results
-
-The AstroNet-style dual-input CNN outperformed the global-view baseline across all major evaluation metrics.
-
-| Metric | Baseline 1D CNN | AstroNet-style CNN |
+| Metric | Baseline 1D CNN | AstroNet-style dual-input CNN |
 |---|---:|---:|
 | Accuracy | 91.61% | **94.41%** |
 | Precision | 74.46% | **81.49%** |
 | Recall | 96.39% | **97.78%** |
-| F1 Score | 84.02% | **88.89%** |
+| F1-score | 84.02% | **88.89%** |
 | ROC-AUC | 97.81% | **98.65%** |
 
-### Improvement
+On the held-out test set, the dual-input model reduced false positives from **119 to 80** and false negatives from **13 to 8**.
 
-- Accuracy: **+2.80 percentage points**
-- Precision: **+7.03 percentage points**
-- Recall: **+1.39 percentage points**
-- F1 Score: **+4.87 percentage points**
-- ROC-AUC: **+0.84 percentage points**
+Detailed values are available in [results/model_comparison.csv](results/model_comparison.csv) and [results/case_studies.csv](results/case_studies.csv).
 
-The AstroNet-style model reduced false positives from **119 to 80** and false negatives from **13 to 8** on the test set.
+## Selected visual results
 
----
+### Global and local input representations
 
-## Project Pipeline
+![Global and local phase-folded light curves](figures/global_and_local_light_curves.png)
 
-```text
-Kepler Time-Series Photometry
-              │
-              ▼
-      Global + Local Views
-              │
-              ▼
-   AstroNet-style Dual CNN
-              │
-              ▼
-     Planet Probability
-              │
-        ┌─────┴─────┐
-        ▼           ▼
- MC Dropout      Grad-CAM
- Uncertainty    Explainability
-        │           │
-        └─────┬─────┘
-              ▼
-       Calibration Analysis
+The global representation contains 2,001 points and the local representation contains 201 points. The project uses the precomputed phase-folded representations distributed with the AstroNet dataset; raw Kepler FITS light curves were not independently phase-folded in the notebook.
 
----
-```
+### Confusion matrices
+
+| Baseline 1D CNN | AstroNet-style dual-input CNN |
+|---|---|
+| ![Baseline confusion matrix](figures/baseline_confusion_matrix.png) | ![AstroNet-style confusion matrix](figures/astronet_confusion_matrix.png) |
+
+### ROC curves
+
+| Baseline 1D CNN | AstroNet-style dual-input CNN |
+|---|---|
+| ![Baseline ROC curve](figures/baseline_roc_curve.png) | ![AstroNet-style ROC curve](figures/astronet_roc_curve.png) |
+
+### Uncertainty and explainability
+
+![Predictive uncertainty distribution](figures/uncertainty_distribution.png)
+
+![Confidence versus predictive uncertainty](figures/confidence_vs_uncertainty.png)
+
+![Local Grad-CAM for test index 592](figures/gradcam_local_test_592.png)
+
+See the `figures/` directory for the full set of original plots, including the most-uncertain-case views, Monte Carlo prediction distribution, and calibration curve.
+
 ## Dataset
 
 The project uses the Kepler exoplanet candidate-vetting dataset distributed with the AstroNet project.
 
-The dataset contains precomputed phase-folded representations:
+### Input representations
 
-- **Global view:** 2001 data points
-- **Local view:** 201 data points
+| View | Length | Purpose |
+|---|---:|---|
+| Global | 2,001 points | Broader light-curve context |
+| Local | 201 points | Detailed transit-region morphology |
 
-The original labels are:
+### Label mapping
 
-| Original Label | Meaning | Binary Label |
+| Original label | Meaning | Binary target |
 |---|---|---:|
 | PC | Planet Candidate | 1 |
 | AFP | Astrophysical False Positive | 0 |
 | NTP | Non-Transit Phenomenon | 0 |
 
-### Dataset Split
+### Dataset split
 
 | Split | Samples |
 |---|---:|
 | Training | 12,589 |
 | Validation | 1,574 |
 | Test | 1,574 |
+| **Total** | **15,737** |
 
-Training set composition:
+Training-set label composition:
 
-- Planet Candidates (PC): 2,885
-- Astrophysical False Positives (AFP): 7,643
-- Non-Transit Phenomena (NTP): 2,061
+- PC: 2,885
+- AFP: 7,643
+- NTP: 2,061
 
-> **Important:** The project uses the already-generated phase-folded global and local representations provided by the AstroNet dataset. Raw Kepler FITS light curves were not independently phase-folded in the project notebook.
+> **Data provenance note:** The notebook consumes the already-generated global and local phase-folded examples. It does not independently create these representations from raw Kepler FITS files.
 
----
-
-## Models
-
-### 1. Baseline 1D CNN
-
-The baseline model uses only the global light-curve representation.
-
-Architecture:
+## Methodology
 
 ```text
-Global View (2001 × 1)
-        ↓
-Conv1D (16)
-        ↓
-MaxPooling
-        ↓
-Conv1D (32)
-        ↓
-MaxPooling
-        ↓
-Conv1D (64)
-        ↓
-MaxPooling
-        ↓
-Flatten
-        ↓
-Dense (64)
-        ↓
-Sigmoid
-        ↓
-Planet Probability
-
-Total parameters: 1,012,545
-
-2. AstroNet-Style Dual-Input CNN
-
-The main model processes both global and local light-curve views.
-
-                 ┌── Global View (2001) ── CNN ──┐
-                 │                                 │
-Input ───────────┤                                 ├── Concatenate
-                 │                                 │
-                 └── Local View (201) ─── CNN ────┘
-                                                   ↓
-                                             Dense (512)
-                                                   ↓
-                                             Dropout (0.5)
-                                                   ↓
-                                             Sigmoid
-                                                   ↓
-                                          Planet Probability
+AstroNet Kepler dataset
+          |
+          v
+ Precomputed global + local views
+          |
+          +----------------------+
+          |                      |
+          v                      v
+   Global 1D CNN          Local 1D CNN
+          |                      |
+          +----------+-----------+
+                     |
+                     v
+                Concatenate
+                     |
+                     v
+             Dense classification
+                     |
+                     v
+             Planet probability
+                     |
+          +----------+-----------+
+          |          |           |
+          v          v           v
+      Evaluation  MC Dropout  Grad-CAM
+                     |       Attribution
+                     v
+              Uncertainty analysis
+                     |
+                     v
+             Calibration analysis
 ```
 
-Total parameters: 8,135,361
+### Baseline model
 
-The architecture is described as AstroNet-style because it adopts the global/local dual-view concept. It is a simplified adaptation and is not an exact reproduction of the original AstroNet implementation.
+The baseline 1D CNN uses only the global light-curve view. Its documented architecture comprises Conv1D layers with 16, 32, and 64 filters, max-pooling, flattening, a 64-unit dense layer, and a sigmoid output. The reported parameter count is 1,012,545.
 
-Training
+### AstroNet-style dual-input model
 
-The models were trained using TensorFlow/Keras with the following configuration:
+The main model processes the global and local views through separate 1D convolutional branches, combines their features, and applies a dense classification head with dropout. The reported parameter count is 8,135,361.
 
-Parameter	Value
-Optimizer	Adam
-Learning Rate	0.001
-Loss	Binary Cross-Entropy
-Batch Size	64
-Epochs	10
-Dropout	0.5
-Metrics	Accuracy, Precision, Recall, AUC
-Hardware	Google Colab GPU
+This is an **AstroNet-style adaptation**, not an exact reproduction of the original AstroNet implementation.
 
-Class weights were used to account for class imbalance:
+### Training configuration
 
-Class 0: 0.6487
-Class 1: 2.1818
-Evaluation
+| Parameter | Value |
+|---|---|
+| Framework | TensorFlow / Keras |
+| Optimizer | Adam |
+| Learning rate | 0.001 |
+| Loss | Binary cross-entropy |
+| Batch size | 64 |
+| Epochs | 10 |
+| Dropout | 0.5 |
+| Class weights | Class 0: 0.6487; Class 1: 2.1818 |
+| Training environment | Google Colab GPU |
 
-The final AstroNet-style model was evaluated on a held-out test set.
+## Evaluation and analysis
 
-Test Performance
-Metric	Result
-Accuracy	94.41%
-Precision	81.49%
-Recall	97.78%
-F1 Score	88.89%
-ROC-AUC	98.65%
-Confusion Matrix
-                 Predicted
-               Non-Planet  Planet
-Actual
-Non-Planet       1134       80
-Planet              8      352
+### Test-set classification
 
-The model produced:
+The AstroNet-style model's confusion matrix contains:
 
-True Negatives: 1134
-False Positives: 80
-False Negatives: 8
-True Positives: 352
-Uncertainty Estimation
+| | Predicted non-planet | Predicted planet |
+|---|---:|---:|
+| Actual non-planet | 1,134 | 80 |
+| Actual planet | 8 | 352 |
 
-Monte Carlo Dropout was used to estimate predictive uncertainty.
+### Predictive uncertainty
 
-Each test example was evaluated 50 times with dropout enabled. The mean prediction and standard deviation across these stochastic forward passes were used as measures of predictive probability and uncertainty.
+Monte Carlo Dropout was evaluated over **50 stochastic forward passes** per test example.
 
-##Results:
+| Summary | Value |
+|---|---:|
+| Mean uncertainty | 0.02048 |
+| Median uncertainty | 0.00375 |
+| Maximum uncertainty | 0.15271 |
 
-Mean uncertainty: 0.02048
-Median uncertainty: 0.00375
-Maximum uncertainty: 0.15271
+The most uncertain example is test index 592, with true label 0, mean predicted planet probability 0.45896, uncertainty 0.15271, and predicted label 0.
 
-The most uncertain test example was Test Index 592:
+### Explainability
 
-Property	Value
-True Label	0
-Mean Probability	0.45896
-Uncertainty	0.15271
-Prediction	0
-Confidence	0.04104
-Explainability
+1D Grad-CAM was used to inspect regions of the input light curves that influenced model predictions. For test index 592, the local-view visualization shows activation around the central transit-like feature.
 
-1D Grad-CAM was used to identify regions of the light curves that contributed strongly to the model's prediction.
+Grad-CAM is an attribution visualization; it is not evidence of a causal physical explanation.
 
-For Test Index 592, the Grad-CAM analysis showed strong activation around the central transit-like feature in the local representation.
+### Calibration
 
-Grad-CAM provides an attribution-based explanation and should not be interpreted as proof of the physical cause of the signal.
+The reported Brier score is **0.0441**. The reliability curve shows deviations from perfect calibration, including overconfidence in parts of the intermediate-to-high probability range.
 
-Calibration
-
-The probabilistic predictions were evaluated using a reliability curve and Brier score.
-
-Brier Score: 0.0441
-
-The calibration analysis showed some deviation from ideal calibration, with evidence of overconfidence in parts of the intermediate-to-high probability range.
-
-Case Studies
-Test Index 592 — Most Uncertain Example
-
-The model assigned a mean probability of approximately 0.4590 with an uncertainty of 0.1527. The prediction was close to the 0.5 decision threshold, making it a useful example of an ambiguous candidate.
-
-Test Index 1343 — Difficult Positive
-
-The true label was 1, with a mean Monte Carlo probability of approximately 0.6879 and uncertainty of 0.1497.
-
-### Test Index 587 — False Positive
-
-The true label was 0, but the model assigned a mean probability of approximately 0.7307, resulting in a false-positive prediction.
-
-This demonstrates the importance of uncertainty estimation and additional candidate vetting.
-
----
-
-## Project Structure
+## Repository structure
 
 ```text
 deep-learning-exoplanet-vetting/
 ├── notebooks/
 │   └── Deep_Learning_Exoplanet_Vetting_AstroNet.ipynb
 ├── figures/
-│   ├── baseline_roc_curve.png
-│   ├── baseline_confusion_matrix.png
-│   ├── astronet_roc_curve.png
+│   ├── astronet_calibration_curve.png
 │   ├── astronet_confusion_matrix.png
-│   ├── global_and_local_light_curves.png
-│   ├── uncertainty_distribution.png
+│   ├── astronet_roc_curve.png
+│   ├── baseline_confusion_matrix.png
+│   ├── baseline_roc_curve.png
 │   ├── confidence_vs_uncertainty.png
+│   ├── global_and_local_light_curves.png
+│   ├── gradcam_local_test_592.png
+│   ├── mc_dropout_predictions.png
 │   ├── most_uncertain_global_view.png
 │   ├── most_uncertain_local_view.png
-│   ├── mc_dropout_predictions.png
-│   ├── gradcam_local_test_592.png
-│   └── astronet_calibration_curve.png
+│   └── uncertainty_distribution.png
 ├── results/
-│   ├── model_comparison.csv
-│   └── case_studies.csv
+│   ├── case_studies.csv
+│   └── model_comparison.csv
 ├── .gitignore
 ├── requirements.txt
 └── README.md
 ```
-Trained .keras models, TFRecord datasets, and large intermediate files are excluded from the repository because of their size.
+
+## Getting started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/kanishka3125/deep-learning-exoplanet-vetting.git
+cd deep-learning-exoplanet-vetting
+```
+
+### 2. Create and activate a virtual environment
+
+**Windows PowerShell**
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+**macOS / Linux**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Install dependencies
+
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 4. Obtain the dataset
+
+Obtain the required Kepler/AstroNet TFRecord dataset separately and make it available in your runtime. The raw dataset is not included in this repository.
+
+### 5. Run the notebook
+
+Open `notebooks/Deep_Learning_Exoplanet_Vetting_AstroNet.ipynb` in Jupyter or Google Colab. Update the dataset path in the notebook for your environment, then execute the notebook sequentially.
+
+The notebook covers data loading, model training, evaluation, Monte Carlo Dropout, Grad-CAM, and calibration analysis.
+
+## Limitations
+
+- The model classifies labelled candidate examples; it does **not** independently confirm the existence of an exoplanet.
+- The experiment uses the available Kepler/AstroNet dataset and may not generalize directly to other missions or stellar populations.
+- The dataset is class-imbalanced.
+- Monte Carlo Dropout provides an approximate uncertainty estimate, not a complete Bayesian posterior.
+- Grad-CAM provides model attribution, not causal explanation.
+- Application to TESS or other surveys requires additional validation.
+
+## Future work
+
+- Validate the pipeline on TESS data and other observational datasets.
+- Evaluate on larger and more diverse candidate populations.
+- Explore deep ensembles or Bayesian neural networks for uncertainty estimation.
+- Investigate additional explainability methods.
+- Explore multiclass classification and more automated candidate vetting.
+
+## References
+
+1. Shallue, C. J., & Vanderburg, A. (2018). *Identifying Exoplanets with Deep Learning: A Five-Planet Resonant Chain around Kepler-80 and an Eighth Planet around Kepler-90*. The Astronomical Journal, 155(2), 94.
+2. Koch, D. G., et al. (2010). *Kepler Mission Design, Realized Photometric Performance, and Early Science*. The Astrophysical Journal Letters, 713(2), L79–L86.
+3. Gal, Y., & Ghahramani, Z. (2016). *Dropout as a Bayesian Approximation: Representing Model Uncertainty in Deep Learning*. Proceedings of ICML, 48, 1050–1059.
+4. Selvaraju, R. R., et al. (2017). *Grad-CAM: Visual Explanations from Deep Networks via Gradient-Based Localization*. Proceedings of ICCV, 618–626.
+5. Guo, C., Pleiss, G., Sun, Y., & Weinberger, K. Q. (2017). *On Calibration of Modern Neural Networks*. Proceedings of ICML, 70, 1321–1330.
 
 ---
 
-## Technologies
+## Authors
 
-- Python
-- TensorFlow / Keras
-- NumPy
-- Pandas
-- Scikit-learn
-- Matplotlib
-- Google Colab
-- Kepler / AstroNet TFRecord data
-  
-Reproducibility
+**Kanishka Sharma** · **Kritika Sharma**  
+SRM Institute of Science & Technology, Chennai
 
-To reproduce the experiment:
-
-Open the notebook in notebooks/.
-Set up a TensorFlow environment.
-Obtain the required AstroNet Kepler TFRecord dataset.
-Update the dataset path in the notebook.
-Run the notebook sequentially.
-Train the baseline and AstroNet-style models.
-Evaluate the models on the held-out test set.
-Run MC Dropout uncertainty estimation.
-Generate Grad-CAM explanations.
-Perform calibration analysis.
-
-The repository intentionally does not include the original dataset or trained model files.
-
-Limitations
-The experiment uses the available Kepler/AstroNet dataset and may not generalize directly to other missions or stellar populations.
-The dataset contains class imbalance.
-MC Dropout provides an approximate measure of predictive uncertainty rather than a complete Bayesian posterior.
-Grad-CAM provides model attribution rather than causal explanation.
-The model classifies candidates based on learned patterns and does not independently confirm exoplanets.
-Performance on TESS or other surveys requires additional validation.
-Future Work
-
-Possible extensions include:
-
-Applying the pipeline to TESS data
-Training on larger and more diverse datasets
-Exploring deep ensembles or Bayesian neural networks for improved uncertainty estimation
-Investigating additional explainability methods
-Extending the task to multiclass classification
-Automating candidate period detection
-Developing human-in-the-loop candidate vetting systems
-References
-Shallue, C. J., & Vanderburg, A. (2018). Identifying Exoplanets with Deep Learning: A Five-Planet Resonant Chain around Kepler-80 and an Eighth Planet around Kepler-90. The Astronomical Journal, 155(2), 94.
-Koch, D. G., et al. (2010). Kepler Mission Design, Realized Photometric Performance, and Early Science. The Astrophysical Journal Letters, 713(2), L79–L86.
-Gal, Y., & Ghahramani, Z. (2016). Dropout as a Bayesian Approximation: Representing Model Uncertainty in Deep Learning. Proceedings of ICML, 48, 1050–1059.
-Selvaraju, R. R., et al. (2017). Grad-CAM: Visual Explanations from Deep Networks via Gradient-Based Localization. Proceedings of ICCV, 618–626.
-Guo, C., Pleiss, G., Sun, Y., & Weinberger, K. Q. (2017). On Calibration of Modern Neural Networks. Proceedings of ICML, 70, 1321–1330
+If you use or build upon this work, please cite the project repository and the original references above.
