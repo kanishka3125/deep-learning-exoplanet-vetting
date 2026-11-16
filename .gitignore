@@ -1,4 +1,4 @@
-# Python
+# Python bytecode and caches
 __pycache__/
 *.py[cod]
 *.pyo
@@ -7,39 +7,39 @@ __pycache__/
 .ipynb_checkpoints/
 
 # Virtual environments
+.venv/
 venv/
 env/
-.venv/
 
-# Large datasets
-*.tfrecord
-*.tfrecords
+# Local datasets and downloaded TFRecords
 data/
 dataset/
 datasets/
+*.tfrecord
+*.tfrecords
 
-# Trained models
+# Trained model artifacts and checkpoints
+models/
+checkpoints/
 *.keras
 *.h5
 *.hdf5
-models/
-checkpoints/
+*.ckpt
 
-# Google Colab
+# Google Colab runtime files
 drive/
 
-# Other CSV files
-*.csv
-
-# Keep project result CSVs
-!results/model_comparison.csv
-!results/case_studies.csv
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Secrets
+# Secrets and local environment configuration
 .env
+.env.*
+!.env.example
 *.key
 *.pem
+
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Keep curated, versioned result tables in results/
